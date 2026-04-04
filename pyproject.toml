@@ -25,16 +25,21 @@ dependencies = [
     "httpx>=0.26.0",
     "pydantic-settings>=2.12.0",
     "redis>=5.0.1",
-    "arq>=0.25.0",
     "bcrypt>=4.1.1",
     "psycopg2-binary>=2.9.9",
     "fastcrud>=0.19.2",
-    "crudadmin>=0.4.2",
     "gunicorn>=23.0.0",
     "ruff>=0.11.13",
     "mypy>=1.16.0",
     "structlog>=25.1.0,<=25.5.0",
     "rich>=14.2.0",
+    "supabase>=2.0.0",
+    "langchain>=0.2.0",
+    "langchain-groq>=0.1.0",
+    "langchain-google-genai>=1.0.0",
+    "pypdf>=4.0.0",
+    "python-docx>=1.0.0",
+    "fpdf2>=2.7.0",
 ]
 
 [project.optional-dependencies]

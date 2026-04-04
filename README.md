@@ -1,222 +1,136 @@
-<h1 align="center"> Benav Labs FastAPI boilerplate</h1>
-<p align="center" markdown=1>
-  <i><b>Batteries-included FastAPI starter</b> with production-ready defaults, optional modules, and clear docs.</i>
-</p>
+# AI-Powered Resume Relevance & ATS Optimizer
 
-<p align="center">
-  <a href="https://benavlabs.github.io/FastAPI-boilerplate">
-    <img src="docs/assets/FastAPI-boilerplate.png" alt="Purple Rocket with FastAPI Logo as its window." width="25%" height="auto">
-  </a>
-</p>
+A production-ready FastAPI backend for analyzing resumes against job descriptions, calculating ATS and relevance scores, finding missing keywords, and automatically generating optimized resume rewrites using state-of-the-art LLMs.
 
-<p align="center">
-📚 <a href="https://benavlabs.github.io/FastAPI-boilerplate/">Docs</a> · 🧠 <a href="https://deepwiki.com/benavlabs/FastAPI-boilerplate">DeepWiki</a> · 💬 <a href="https://discord.com/invite/TEmPs22gqB">Discord</a>
-</p>
+## 🚀 Features
 
-<p align="center">
-  <a href="https://fastapi.tiangolo.com">
-      <img src="https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi" alt="FastAPI">
-  </a>
-  <a href="https://www.postgresql.org">
-      <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
-  </a>
-  <a href="https://redis.io">
-      <img src="https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=fff&style=for-the-badge" alt="Redis">
-  </a>
-  <a href="https://deepwiki.com/benavlabs/FastAPI-boilerplate">
-      <img src="https://img.shields.io/badge/DeepWiki-1F2937?style=for-the-badge&logoColor=white" alt="DeepWiki">
-  </a>
-</p>
+- **JWT Authentication**: Full registration, login, logout (token blacklisting), and refresh flows.
+- **File Parsing & Storage**: Extract text from uploaded PDF and DOCX files securely, saving original files in Supabase Storage.
+- **AI Relevance Scoring**: Uses Groq (Llama 3) or Gemini via LangChain to score resumes based on skill match and experience alignment (0-100).
+- **ATS Compatibility**: Evaluates formatting, keyword density, and section structure, delivering an ATS score and actionable recommendations.
+- **AI Resume Rewrite**: Generates a tailored, ATS-friendly resume rewrite specifically designed to pass filters for a target Job Description.
+- **Dynamic File Generation**: Download the final AI-rewritten resume automatically in PDF or DOCX format.
+- **Fast & Scalable**: Asynchronous operations, SQLAlchemy 2.0 with PostgreSQL, and optional Redis caching.
 
-## Features
+## ⚙️ Tech Stack
 
-* ⚡️ Fully async FastAPI + SQLAlchemy 2.0
-* 🧱 Pydantic v2 models & validation
-* 🔐 JWT auth (access + refresh), cookies for refresh
-* 👮 Rate limiter + tiers (free/pro/etc.)
-* 🧰 FastCRUD for efficient CRUD & pagination
-* 🧑‍💼 **CRUDAdmin**: minimal admin panel (optional)
-* 🚦 ARQ background jobs (Redis)
-* 🧊 Redis caching (server + client-side headers)
-* 🌐 Configurable CORS middleware for frontend integration
-* 🐳 One-command Docker Compose
-* 🚀 NGINX & Gunicorn recipes for prod
+- **Framework**: FastAPI (Python 3.11+)
+- **Database**: PostgreSQL (SQLAlchemy 2.0 async + FastCRUD)
+- **Migrations**: Alembic
+- **AI / LLMs**: LangChain, Groq (Llama 3 70B default), Google Gemini GenAI
+- **Storage**: Supabase Storage
+- **Security**: JWT & bcrypt
 
-## Why and When to use it
+## 📂 Folder Structure
 
-**Perfect if you want:**
-
-* A pragmatic starter with auth, CRUD, jobs, caching and rate-limits
-* **Sensible defaults** with the freedom to opt-out of modules
-* **Docs over boilerplate** in README - depth lives in the site
-
-> **Not a fit** if you need a monorepo microservices scaffold - [see the docs](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/project-structure/) for pointers.
-
-**What you get:**
-
-* **App**: FastAPI app factory, [env-aware docs](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/development/) exposure
-* **Auth**: [JWT access/refresh](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/authentication/), logout via token blacklist
-* **DB**: Postgres + SQLAlchemy 2.0, [Alembic migrations](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/database/)
-* **CRUD**: [FastCRUD generics](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/database/crud/) (get, get_multi, create, update, delete, joins)
-* **Caching**: [decorator-based endpoints cache](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/caching/); client cache headers
-* **Queues**: [ARQ worker](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/background-tasks/) (async jobs), Redis connection helpers
-* **Rate limits**: [per-tier + per-path rules](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/rate-limiting/)
-* **Admin**: [CRUDAdmin views](https://benavlabs.github.io/FastAPI-boilerplate/user-guide/admin-panel/) for common models (optional)
-
-This is what we've been using in production apps. Several applications running in production started from this boilerplate as their foundation - from SaaS platforms to internal tools. It's proven, stable technology that works together reliably. Use this as the foundation for whatever you want to build on top.
-
-> **Building an AI SaaS?** Skip even more setup with [**FastroAI**](https://fastro.ai) - our production-ready template with AI integration, payments, and frontend included.
-
-## TL;DR - Quickstart
-
-Use the template on GitHub, create your repo, then:
-
-```bash
-git clone https://github.com/<you>/FastAPI-boilerplate
-cd FastAPI-boilerplate
+```text
+src/
+├── app/
+│   ├── api/v1/                # REST API Endpoints
+│   │   ├── auth.py            # Login, register, token refresh
+│   │   ├── users.py           # User profile management
+│   │   ├── resume.py          # Resume upload & text extraction
+│   │   ├── job_description.py # JD creation (text/upload)
+│   │   ├── analysis.py        # Trigger Relevance/ATS analysis
+│   │   ├── ats.py             # Quick ATS score checks & tips
+│   │   ├── rewrite.py         # AI-powered resume restructuring
+│   │   └── files.py           # Download optimized PDF/DOCX
+│   ├── core/                  # Conf, Security, Database setup
+│   ├── crud/                  # FastCRUD DB instances
+│   ├── models/                # SQLAlchemy Domain Models
+│   ├── schemas/               # Pydantic validation schemas
+│   └── services/              # Business Logic
+│       ├── chains/            # LangChain prompts & parsers
+│       ├── analysis_service.py # Orchestrator for pipelines
+│       ├── file_service.py    # PDF/DOCX parsers
+│       ├── llm_service.py     # AI client factory
+│       └── storage_service.py # Supabase operations
+├── .env                       # Environment Variables
+└── main.py
 ```
 
-**Quick setup:** Run the interactive setup script to choose your deployment configuration:
+## 🛠️ Setup Instructions
+
+### Prerequisites
+- Python 3.11+
+- PostgreSQL
+- [uv](https://github.com/astral-sh/uv) (recommended) or pip
+
+### 1. Installation
+
+Clone the repo and configure your virtual environment:
 
 ```bash
-./setup.py
+uv venv
+source .venv/bin/activate
+uv sync
 ```
 
-Or directly specify the deployment type: `./setup.py local`, `./setup.py staging`, or `./setup.py production`.
+### 2. Environment Variables
 
-The script copies the right files for your deployment scenario. Here's what each option sets up:
-
-### Option 1: Local development with Uvicorn
-
-Best for: **Development and testing**
-
-**Copies:**
-
-- `scripts/local_with_uvicorn/Dockerfile` → `Dockerfile`
-- `scripts/local_with_uvicorn/docker-compose.yml` → `docker-compose.yml`
-- `scripts/local_with_uvicorn/.env.example` → `src/.env`
-
-Sets up Uvicorn with auto-reload enabled. The example environment values work fine for development.
-
-**Manual setup:** `./setup.py local` or copy the files above manually.
-
-### Option 2: Staging with Gunicorn managing Uvicorn workers
-
-Best for: **Staging environments and load testing**
-
-**Copies:**
-
-- `scripts/gunicorn_managing_uvicorn_workers/Dockerfile` → `Dockerfile`
-- `scripts/gunicorn_managing_uvicorn_workers/docker-compose.yml` → `docker-compose.yml`
-- `scripts/gunicorn_managing_uvicorn_workers/.env.example` → `src/.env`
-
-Sets up Gunicorn managing multiple Uvicorn workers for production-like performance testing.
-
-> [!WARNING]
-> Change `SECRET_KEY` and passwords in the `.env` file for staging environments.
-
-**Manual setup:** `./setup.py staging` or copy the files above manually.
-
-### Option 3: Production with NGINX
-
-Best for: **Production deployments**
-
-**Copies:**
-
-- `scripts/production_with_nginx/Dockerfile` → `Dockerfile`
-- `scripts/production_with_nginx/docker-compose.yml` → `docker-compose.yml`
-- `scripts/production_with_nginx/.env.example` → `src/.env`
-
-Sets up NGINX as reverse proxy with Gunicorn + Uvicorn workers for production.
-
-> [!CAUTION]
-> You MUST change `SECRET_KEY`, all passwords, and sensitive values in the `.env` file before deploying!
-
-**Manual setup:** `./setup.py production` or copy the files above manually.
-
----
-
-**Start your application:**
+Copy the provided example file to create your own configuration:
 
 ```bash
-docker compose up
+cp src/.env.example src/.env
 ```
 
-**Access your app:**
-- **Local**: http://127.0.0.1:8000 (auto-reload enabled) → [API docs](http://127.0.0.1:8000/docs)
-- **Staging**: http://127.0.0.1:8000 (production-like performance)
-- **Production**: http://localhost (NGINX reverse proxy)
+Update `src/.env` with your actual keys (especially Supabase and LLM API keys). Default passwords and hostnames work for local Docker development.
 
-### Next steps
-
-**Create your first admin user:**
-```bash
-docker compose run --rm create_superuser
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=resume_optimizer
+SECRET_KEY=your_super_secret_jwt_key
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+GROQ_API_KEY=gsk_your_api_key
 ```
 
-**Run database migrations** (if you add models):
-```bash
-cd src && uv run alembic revision --autogenerate && uv run alembic upgrade head
-```
+### 3. Run with Docker Compose (Recommended)
 
-**Test background jobs:**
-```bash
-curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=hello'
-```
-
-**Or run locally without Docker:**
-```bash
-uv sync && uv run uvicorn src.app.main:app --reload
-```
-
-> Full setup (from-scratch, .env examples, PostgreSQL & Redis, gunicorn, nginx) lives in the [docs](https://benavlabs.github.io/FastAPI-boilerplate/getting-started/installation/).
-
-## Configuration (minimal)
-
-Create `src/.env` and set **app**, **database**, **JWT**, and **environment** settings. See the [docs](https://benavlabs.github.io/FastAPI-boilerplate/getting-started/configuration/) for a copy-pasteable example and production guidance.
-
-[https://benavlabs.github.io/FastAPI-boilerplate/getting-started/configuration/](https://benavlabs.github.io/FastAPI-boilerplate/getting-started/configuration/)
-
-* `ENVIRONMENT=local|staging|production` controls API docs exposure
-* Set `ADMIN_*` to enable the first admin user
-
-## Common tasks
+The easiest way to run the application with its PostgreSQL database is using Docker Compose:
 
 ```bash
-# run locally with reload (without Docker)
-uv sync && uv run uvicorn src.app.main:app --reload
-
-# run Alembic migrations
-cd src && uv run alembic revision --autogenerate && uv run alembic upgrade head
-
-# enqueue a background job (example endpoint)
-curl -X POST 'http://127.0.0.1:8000/api/v1/tasks/task?message=hello'
+docker-compose up --build
 ```
 
-More examples (superuser creation, tiers, rate limits, admin usage) in the [docs](https://benavlabs.github.io/FastAPI-boilerplate/getting-started/first-run/).
+On first startup, you will need to run the database migrations. Open a new terminal and parse them inside the `web` container:
+```bash
+docker-compose exec web uv run alembic upgrade head
+```
 
-## Contributing
+Your API is now running at `http://127.0.0.1:8000`. Navigate to `http://127.0.0.1:8000/docs` to interact with the OpenAPI UI.
 
-Read [contributing](CONTRIBUTING.md).
+### 4. Database Migrations (Without Docker)
 
-## References
+Run Alembic to create the initial tables:
 
-This project was inspired by a few projects, it's based on them with things changed to the way I like (and pydantic, sqlalchemy updated)
+```bash
+cd src
+uv run alembic upgrade head
+```
 
-- [`Full Stack FastAPI and PostgreSQL`](https://github.com/tiangolo/full-stack-fastapi-postgresql) by @tiangolo himself
-- [`FastAPI Microservices`](https://github.com/Kludex/fastapi-microservices) by @kludex which heavily inspired this boilerplate
-- [`Async Web API with FastAPI + SQLAlchemy 2.0`](https://github.com/rhoboro/async-fastapi-sqlalchemy) for sqlalchemy 2.0 ORM examples
-- [`FastaAPI Rocket Boilerplate`](https://github.com/asacristani/fastapi-rocket-boilerplate/tree/main) for docker compose
+### 4. Run the API Locally
 
-## License
+```bash
+uv run uvicorn app.main:app --reload
+```
 
-[`MIT`](LICENSE.md)
+Your API is now running at `http://127.0.0.1:8000`. Navigate to `http://127.0.0.1:8000/docs` to interact with the OpenAPI UI.
 
-## Contact
+## 🌐 API Overview
 
-Benav Labs – [benav.io](https://benav.io), [discord server](https://discord.com/invite/TEmPs22gqB)
+- `POST /api/v1/auth/register`: Create account
+- `POST /api/v1/auth/login`: Get JWT Access + Refresh token
+- `POST /api/v1/resumes/upload`: Upload PDF/DOCX and parse text
+- `POST /api/v1/job-descriptions/`: Paste or upload JD
+- `POST /api/v1/analysis/`: Run AI score analysis (Relevance + ATS)
+- `POST /api/v1/rewrite/`: Generate an optimized rewrite
+- `GET /api/v1/files/download/{report_id}/resume`: Get the new resume
 
-<hr>
-<a href="https://benav.io">
-  <img src="https://github.com/benavlabs/fastcrud/raw/main/docs/assets/benav_labs_banner.png" alt="Powered by Benav Labs - benav.io"/>
-</a>
+## 🔮 Future Improvements
+
+- Add Celery/ARQ for background asynchronous job processing (currently analysis is synchronous to simplify deployment).
+- Integrate Stripe for monetization limits per user.
+- Webhooks for Supabase storage cleanup synchronization.
+- Expand LLM provider choice directly from the request payload.
