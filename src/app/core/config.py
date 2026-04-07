@@ -14,6 +14,9 @@ class AppSettings(BaseSettings):
     LICENSE_NAME: str | None = "MIT"
     CONTACT_NAME: str | None = None
     CONTACT_EMAIL: str | None = None
+    LOG_REQUEST_BODY: bool = True
+    LOG_RESPONSE_BODY: bool = True
+    LOG_MAX_BODY_SIZE: int = 10240  # 10KB limit
 
 
 class CryptSettings(BaseSettings):
