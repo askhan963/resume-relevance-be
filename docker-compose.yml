@@ -1,0 +1,55 @@
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    
+    # Run server
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    
+    env_file:
+      - ./src/.env
+    environment:
+      - POSTGRES_SERVER=db
+      - REDIS_CACHE_HOST=redis
+    ports:
+       - "8000:8000"
+    depends_on:
+      db:
+        condition: service_started
+    volumes:
+      - ./src/app:/code/app
+      - ./src/.env:/code/.env
+
+  db:
+    image: postgres:15-alpine
+    env_file:
+      - ./src/.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  #-------- uncomment to run tests --------
+  # pytest:
+  #   build: 
+  #     context: .
+  #     dockerfile: Dockerfile 
+  #   env_file:
+  #     - ./src/.env
+  #   depends_on:
+  #     - db
+  #   command: python -m pytest ./tests
+  #   volumes:
+  #     - .:/code
+
+volumes:
+  postgres-data:
+  redis-data:
