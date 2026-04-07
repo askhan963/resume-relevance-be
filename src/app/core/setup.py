@@ -129,7 +129,9 @@ def create_application(
 
             @docs_router.get("/docs", include_in_schema=False)
             async def get_swagger_documentation() -> fastapi.responses.HTMLResponse:
-                return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
+                return get_swagger_ui_html(
+                    openapi_url="/openapi.json", title="docs", swagger_ui_parameters={"persistAuthorization": True}
+                )
 
             @docs_router.get("/redoc", include_in_schema=False)
             async def get_redoc_documentation() -> fastapi.responses.HTMLResponse:
