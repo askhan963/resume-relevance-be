@@ -20,6 +20,7 @@ A production-ready FastAPI backend for analyzing resumes against job description
 - **AI / LLMs**: LangChain, Groq (Llama 3 70B default), Google Gemini GenAI
 - **Storage**: Supabase Storage
 - **Security**: JWT & bcrypt
+- **Other**: UUID, python-multipart, python-dotenv, structlog, etc.
 
 ## 📂 Folder Structure
 
@@ -35,21 +36,23 @@ src/
 │   │   ├── ats.py             # Quick ATS score checks & tips
 │   │   ├── rewrite.py         # AI-powered resume restructuring
 │   │   └── files.py           # Download optimized PDF/DOCX
-│   ├── core/                  # Conf, Security, Database setup
+│   ├── core/                  # Config, Security, Database setup
 │   ├── crud/                  # FastCRUD DB instances
 │   ├── models/                # SQLAlchemy Domain Models
 │   ├── schemas/               # Pydantic validation schemas
-│   └── services/              # Business Logic
+│   └── services/              # Business Logic Services
 │       ├── chains/            # LangChain prompts & parsers
 │       ├── analysis_service.py # Orchestrator for pipelines
 │       ├── file_service.py    # PDF/DOCX parsers
 │       ├── llm_service.py     # AI client factory
 │       └── storage_service.py # Supabase operations
 ├── .env                       # Environment Variables
-└── main.py
+├── main.py                    # Application entry point
+├── alembic.ini                # Alembic configuration
+└── migrations/                # Alembic migration scripts
 ```
 
-## 🛠️ Setup Instructions
+## 🔧 Setup Instructions
 
 ### Prerequisites
 - Python 3.11+
@@ -57,9 +60,7 @@ src/
 - [uv](https://github.com/astral-sh/uv) (recommended) or pip
 
 ### 1. Installation
-
 Clone the repo and configure your virtual environment:
-
 ```bash
 uv venv
 source .venv/bin/activate
@@ -67,56 +68,64 @@ uv sync
 ```
 
 ### 2. Environment Variables
-
 Copy the provided example file to create your own configuration:
-
 ```bash
 cp src/.env.example src/.env
 ```
-
 Update `src/.env` with your actual keys (especially Supabase and LLM API keys). Default passwords and hostnames work for local Docker development.
 
 ```env
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
+POSTGRES_SERVER=db
+POSTGRES_PORT=5432
 POSTGRES_DB=resume_optimizer
 SECRET_KEY=your_super_secret_jwt_key
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=your-service-role-key
-GROQ_API_KEY=gsk_your_api_key
+SUPABASE_SERVICE_KEY=your-supabase-service-role-key
+SUPABASE_STORAGE_BUCKET=resumes
+DEFAULT_LLM_PROVIDER=groq
+GROQ_API_KEY=your-groq-api-key
+GEMINI_API_KEY=your-gemini-api-key
 ```
 
-### 3. Run with Docker Compose (Recommended)
-
+### 3. Running with Docker Compose (Recommended)
 The easiest way to run the application with its PostgreSQL database is using Docker Compose:
-
 ```bash
 docker-compose up --build
 ```
-
-On first startup, you will need to run the database migrations. Open a new terminal and parse them inside the `web` container:
+On first startup, you need to run the database migrations inside the `web` container:
 ```bash
 docker-compose exec web uv run alembic upgrade head
 ```
+Your API will be running at `http://127.0.0.1:8000`. Access the interactive API documentation at `http://127.0.0.1:8000/docs`.
 
-Your API is now running at `http://127.0.0.1:8000`. Navigate to `http://127.0.0.1:8000/docs` to interact with the OpenAPI UI.
+### 4. Running Locally (Without Docker)
+If you prefer to run the application locally without Docker:
+1. Ensure PostgreSQL is running locally (or update the `.env` file to point to your PostgreSQL instance).
+2. Run the database migrations:
+   ```bash
+   cd src
+   uv run alembic upgrade head
+   ```
+3. Start the development server:
+   ```bash
+   uv run uvicorn app.main:app --reload
+   ```
+The API will be available at `http://127.0.0.1:8000`.
 
-### 4. Database Migrations (Without Docker)
-
-Run Alembic to create the initial tables:
-
+### 5. Database Migrations (Separate Command)
+You can manage migrations independently using Alembic:
 ```bash
-cd src
+# Generate a new migration after model changes
+uv run alembic revision --autogenerate -m "description"
+
+# Apply migrations
 uv run alembic upgrade head
+
+# Rollback the last migration
+uv run alembic downgrade -1
 ```
-
-### 4. Run the API Locally
-
-```bash
-uv run uvicorn app.main:app --reload
-```
-
-Your API is now running at `http://127.0.0.1:8000`. Navigate to `http://127.0.0.1:8000/docs` to interact with the OpenAPI UI.
 
 ## 🌐 API Overview
 
@@ -132,5 +141,36 @@ Your API is now running at `http://127.0.0.1:8000`. Navigate to `http://127.0.0.
 
 - Add Celery/ARQ for background asynchronous job processing (currently analysis is synchronous to simplify deployment).
 - Integrate Stripe for monetization limits per user.
-- Webhooks for Supabase storage cleanup synchronization.
+- Add webhooks for Supabase storage cleanup synchronization.
 - Expand LLM provider choice directly from the request payload.
+- Add user subscription tiers and billing.
+- Implement advanced analytics dashboard.
+
+## 🛠️ Development Tools
+
+- **Ruff** for linting and formatting
+- **MyPy** for type checking
+- **Pytest** with pytest-asyncio for testing
+- **Pre-commit** hooks for code quality
+- **Structlog** for structured logging
+
+## 🧪 Running Tests
+```bash
+uv run pytest
+```
+
+## 🐳 Deployment
+The project includes Docker Compose for easy deployment:
+- Uses `ghcr.io/astral-sh/uv:python3.11-bookworm-slim` as builder stage
+- Production-ready Python slim image
+- Non-root user for security
+- Configurable via environment variables
+
+## 📝 Environment Variables Reference
+See `src/.env.example` for complete reference. Key categories:
+- **Database**: PostgreSQL connection settings
+- **Security**: JWT secret, algorithm, expiration
+- **Storage**: Supabase URL, service key, bucket name
+- **LLM**: Provider selection and API keys
+- **Caching**: Redis configuration (optional)
+- **Server**: Host, port, reload settings

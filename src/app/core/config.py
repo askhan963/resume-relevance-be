@@ -58,7 +58,7 @@ class PostgresSettings(DatabaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_SERVER: str = "localhost"
-    POSTGRES_PORT: int = 5432
+    POSTGRES_PORT: int = 5433
     POSTGRES_DB: str = "resume_optimizer"
     POSTGRES_SYNC_PREFIX: str = "postgresql://"
     POSTGRES_ASYNC_PREFIX: str = "postgresql+asyncpg://"
@@ -131,6 +131,10 @@ class FileSettings(BaseSettings):
     ALLOWED_FILE_TYPES: list[str] = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
     ALLOWED_EXTENSIONS: list[str] = [".pdf", ".docx"]
 
+    # Local storage settings
+    USE_LOCAL_STORAGE: bool = False
+    LOCAL_STORAGE_PATH: str = "storage"
+
 
 class EnvironmentOption(str, Enum):
     LOCAL = "local"
@@ -164,7 +168,7 @@ class Settings(
     ConsoleLoggerSettings,
 ):
     model_config = SettingsConfigDict(
-        env_file=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", ".env"),
+        env_file=os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", "..", ".env"),
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",

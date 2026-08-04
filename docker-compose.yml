@@ -28,7 +28,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
   redis:
     image: redis:alpine
@@ -39,9 +39,9 @@ services:
 
   #-------- uncomment to run tests --------
   # pytest:
-  #   build: 
+  #   build:
   #     context: .
-  #     dockerfile: Dockerfile 
+  #     dockerfile: Dockerfile
   #   env_file:
   #     - ./src/.env
   #   depends_on:
@@ -49,6 +49,19 @@ services:
   #   command: python -m pytest ./tests
   #   volumes:
   #     - .:/code
+
+  filebrowser:
+    image: filebrowser/filebrowser:v2
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./storage:/srv
+      - ./filebrowser/config.json:/config.json
+      - ./filebrowser/database.db:/database.db
+    depends_on:
+      - web
 
   loki:
     image: grafana/loki:latest

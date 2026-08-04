@@ -146,3 +146,10 @@ src/.env
 # Don't ignore files inside of script folder:
 !scripts/*
 
+
+# Filebrowser directory (generated or external)
+filebrowser/
+
+# Test resume files
+test_resume.pdf
+test_resume.txt
